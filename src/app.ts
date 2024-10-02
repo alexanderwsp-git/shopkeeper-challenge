@@ -10,6 +10,8 @@ app.use(express.json());
 app.use(errorHandler);
 app.use(bigintMiddleware);
 
+app.use(express.static('public'));
+
 app.use('/api/deals', dealsRoutes);
 
 
