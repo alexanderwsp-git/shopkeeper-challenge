@@ -1,0 +1,17 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - API_SHOPKEEPER_LISTINGS=${API_SHOPKEEPER_LISTINGS}
+
+    networks:
+      - app-network
+
+networks:
+  app-network:

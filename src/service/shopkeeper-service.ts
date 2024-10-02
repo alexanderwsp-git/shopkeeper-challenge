@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-export const getListingsWithRevenue = async () => {
+export const getListingsWithRevenue = async (startDate: string, endDate: string) => {
     try {
         const result = await prisma.$queryRaw`
             SELECT 
@@ -16,12 +16,22 @@ export const getListingsWithRevenue = async () => {
             JOIN 
                 sites s ON d.site_id = s.id
             WHERE 
-                d.listing_date BETWEEN '2020-11-01' AND '2021-11-30'
+                d.listing_date >= CAST(${startDate} AS date)
+                AND d.listing_date <= CAST(${endDate} AS date)
             ORDER BY 
                 year, month, broker_name;
         `;
         return result;
     } catch (error) {
-        console.log(`An error occours when try to get the listing data`)
+        console.log(`An error occours when try to get the listing data`, error)
+    }
+};
+
+export const healthCheckSvc = async () => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        return { status: 'ok', database: 'connected' };
+    } catch (error) {
+        return { status: 'error', database: 'disconnected' };
     }
 };

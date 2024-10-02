@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { chart } from '../controllers/shopkeeper-controller';
+import { shopkeeper } from '../controllers/shopkeeper-controller';
 
 const router: Router = Router();
 
-router.get('/', chart);
+router.get('/', shopkeeper);
 
 export default router;

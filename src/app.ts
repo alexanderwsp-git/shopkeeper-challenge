@@ -4,7 +4,8 @@ import path from 'path';
 import { errorHandler } from './middleware/errorHandler';
 import { bigintMiddleware } from './middleware/bigintMiddleware';
 import dealsRoutes from './routes/deals-route';
-import chart from './routes/shopkeeper.views-route';
+import shopkeeperViews from './routes/shopkeeper.views-route';
+import shopkeeperApi from './routes/shopkeeper.api-route';
 
 import JSONbig from 'json-bigint';
 
@@ -30,7 +31,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use('/api/deals', dealsRoutes);
 
-app.use('/', chart);
+app.use('/', shopkeeperViews);
+app.use('/api/v1/shopkeeper', shopkeeperApi);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
