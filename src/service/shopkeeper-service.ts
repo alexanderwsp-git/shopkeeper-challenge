@@ -1,6 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import JSONbig from 'json-bigint';
-
 const prisma = new PrismaClient();
 
 export const getListingsWithRevenue = async () => {
@@ -22,7 +20,7 @@ export const getListingsWithRevenue = async () => {
             ORDER BY 
                 year, month, broker_name;
         `;
-        return JSONbig.stringify(result);
+        return result;
     } catch (error) {
         console.log(`An error occours when try to get the listing data`)
     }

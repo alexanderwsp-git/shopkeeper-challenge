@@ -1,14 +1,15 @@
 {
-  "name": "shopkeeper-backend",
+  "name": "shopkeeper-dashboard",
   "version": "1.0.0",
   "main": "src/app.ts",
   "scripts": {
-    "start": "rm -rf dist && npx tsc && node dist/app.js",
+    "start": "rm -rf dist && npx tsc && npm run copy-views && node dist/app.js",
+    "copy-views": "cp -r src/views dist/views",
     "dev": "npx nodemon --exec ts-node src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alexander Samaniego <alexanderwspenafiel@gmail.com>",
   "license": "ISC",
   "description": "",
   "dependencies": {

@@ -1,30 +1,34 @@
 <h1>{{ title }}</h1>
-<canvas id="shopkeeperChart" width="400" height="200"></canvas>
+<canvas id="shopkeeperChart" width="95%" height="40%"></canvas>
 <h2>Listings Data</h2>
-<table border="1">
+<table id="listingsTable" class="table table-striped table-bordered" style="width:100%">
   <thead>
     <tr>
       <th>Listing ID</th>
+      <th>Broker</th>
       <th>Listing Month</th>
       <th>Listing Date</th>
-      <th>Broker</th>
       <th>Revenue</th>
     </tr>
   </thead>
   <tbody>
-    {{#each listingsTable}}
+    {{#each listings }}
     <tr>
-      <td>{{ listing_id}}</td>
-      <td>{{month}}/{{year}}</td>
-      <td>{{listing_date}}</td>
-      <td>{{broker_name}}</td>
-      <td>{{revenue}}</td>
+      <td>{{ listing_id }}</td>
+      <td>{{ broker_name }}</td>
+      <td>{{ month }}/{{ year }}</td>
+      <td>{{ listing_date }}</td>
+      <td>{{ revenue }}</td>
     </tr>
     {{/each}}
   </tbody>
 </table>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+  new DataTable('#listingsTable', {
+    pageLength: 10,
+    order: [[1, 'asc']],
+  });
 
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
@@ -35,7 +39,7 @@
     return color;
   };
 
-  const dataListings = {{{ listings }}};
+  const dataListings = {{{ toJsonBig listings }}};
 
   const brokers = {};
   const labels = new Set();
@@ -59,13 +63,13 @@
   const chartLabels = Array.from(labels).sort((a, b) => {
     const [monthA, yearA] = a.split('/');
     const [monthB, yearB] = b.split('/');
-    return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);  // Sort by date
+    return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);
   });
 
   const datasets = Object.values(brokers).map(broker => ({
     label: broker.label,
     data: chartLabels.map(label => broker.data[label] || 0),
-    borderColor: getRandomColor(), // Assign random color
+    borderColor: getRandomColor(),
     fill: false,
   }));
 
