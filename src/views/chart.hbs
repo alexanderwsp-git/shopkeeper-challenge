@@ -1,41 +1,85 @@
-<h1>{{title}}</h1>
-<canvas id="myChart" width="400" height="200"></canvas>
-
+<h1>{{ title }}</h1>
+<canvas id="shopkeeperChart" width="400" height="200"></canvas>
+<h2>Listings Data</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Listing ID</th>
+      <th>Listing Month</th>
+      <th>Listing Date</th>
+      <th>Broker</th>
+      <th>Revenue</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each listingsTable}}
+    <tr>
+      <td>{{ listing_id}}</td>
+      <td>{{month}}/{{year}}</td>
+      <td>{{listing_date}}</td>
+      <td>{{broker_name}}</td>
+      <td>{{revenue}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('myChart').getContext('2d');
-  const myChart = new Chart(ctx, {
-    type: 'bar',
+
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
+  const dataListings = {{{ listings }}};
+
+  const brokers = {};
+  const labels = new Set();
+
+  dataListings.forEach(item => {
+    const monthYear = `${item.month}/${item.year}`;
+    labels.add(monthYear);
+
+    if (!brokers[item.broker_name]) {
+      brokers[item.broker_name] = {
+        label: item.broker_name,
+        data: {},
+      };
+    }
+
+    brokers[item.broker_name].data[monthYear] = brokers[item.broker_name].data[monthYear]
+      ? brokers[item.broker_name].data[monthYear] + 1
+      : 1;
+  });
+
+  const chartLabels = Array.from(labels).sort((a, b) => {
+    const [monthA, yearA] = a.split('/');
+    const [monthB, yearB] = b.split('/');
+    return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);  // Sort by date
+  });
+
+  const datasets = Object.values(brokers).map(broker => ({
+    label: broker.label,
+    data: chartLabels.map(label => broker.data[label] || 0),
+    borderColor: getRandomColor(), // Assign random color
+    fill: false,
+  }));
+
+  const ctx = document.getElementById('shopkeeperChart').getContext('2d');
+  const shopkeeperChart = new Chart(ctx, {
+    type: 'line',
     data: {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-      datasets: [{
-        label: 'Sales',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: chartLabels,
+      datasets: datasets,
     },
     options: {
       scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
+        y: { beginAtZero: true },
+      },
+    },
   });
 </script>

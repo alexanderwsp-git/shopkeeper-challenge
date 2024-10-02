@@ -10,13 +10,16 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(errorHandler);
 app.use(bigintMiddleware);
+app.use(errorHandler);
 
 app.engine('hbs', engine({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views', 'layouts'),
-  extname: '.hbs'
+  extname: '.hbs',
+  helpers: {
+    json: (context: any) => JSON.stringify(context)
+  }
 }));
 
 app.set('view engine', 'hbs');
