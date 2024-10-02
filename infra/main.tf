@@ -3,18 +3,15 @@ provider "aws" {
   profile = "awsp"
 }
 
-# Crear un repositorio ECR
 resource "aws_ecr_repository" "skpr_ecr_repo" {
-  name                 = "shopkeeper"  # Nombre del repositorio
-  image_tag_mutability = "MUTABLE"        # Controla la mutabilidad de las imágenes
+  name                 = "shopkeeper"
+  image_tag_mutability = "MUTABLE"
 
-  # Opcional: habilitar escaneo automático de vulnerabilidades
   image_scanning_configuration {
     scan_on_push = true
   }
 }
 
-# Definir una política de ciclo de vida separada para el repositorio
 resource "aws_ecr_lifecycle_policy" "ecr_lifecycle_policy" {
   repository = aws_ecr_repository.skpr_ecr_repo.name
 
@@ -39,7 +36,52 @@ resource "aws_ecr_lifecycle_policy" "ecr_lifecycle_policy" {
 EOF
 }
 
-# Output para mostrar el URL del repositorio ECR
+resource "aws_lightsail_container_service" "shopkeeper_container" {
+  name  = "shopkeeper-service"
+  power = "nano"
+  scale = 1
+}
+
+
+resource "aws_lightsail_container_service_deployment_version" "shopkeeper_container_deployment" {
+  service_name = aws_lightsail_container_service.shopkeeper_container.name
+
+
+  container {
+    container_name = "shopkeeper"
+    image          = var.image
+    command        = []
+    environment = {
+      PORT                     = "${var.port}"
+      DATABASE_URL             = "${var.database_connection}"
+      API_SHOPKEEPER_LISTEINGS = "${var.api_shopkeeper}"
+    }
+    ports = {
+      "${var.port}" = "HTTP"
+    }
+  }
+
+  public_endpoint {
+    container_name = "shopkeeper"
+    container_port = var.port
+
+    health_check {
+      healthy_threshold   = 2
+      unhealthy_threshold = 2
+      timeout_seconds     = 5
+      interval_seconds    = 30
+      path                = "/api/v1/shopkeeper/healthz"
+      success_codes       = "200-499"
+    }
+  }
+}
+
+
+output "container_service_url" {
+  value = aws_lightsail_container_service.shopkeeper_container.url
+}
+
+
 output "ecr_repository_url" {
   value = aws_ecr_repository.skpr_ecr_repo.repository_url
 }
